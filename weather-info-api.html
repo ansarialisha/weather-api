@@ -1,0 +1,122 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="weather-api.css">
+        <script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body>
+        <div x-data="weatherAlpineComponent()">
+                <div>
+                    Current Time: <span x-text="currentTime"></span>
+                </div>
+                <div>
+                    <legend>Temperature:</legend><span x-text="Temperature"></span>
+                </div>
+                <div>
+                    <legend>Temperature Feels Like:</legend><span x-text="TemperatureFeelsLike"></span>
+                </div>
+                <div>
+                    <legend>Today:</legend><span x-text="weatherCodeText"></span>
+                </div>
+                <div>
+                    <legend>Humidity:</legend><span x-text="Humidity"></span>
+                </div>
+                <script>
+                    function weatherAlpineComponent(){
+                        return {
+                            Temperature: '',
+                            TemperatureFeelsLike: '',
+                            Humidity: '',
+                            EndPointAPI:'https://api.tomorrow.io/v4/weather/realtime',
+                            APIkeys: '1S8aKk1G3esaY6nwqGy7QTXyoxFKruiu',
+                            Location: '19.1633595,73.0215081',
+                            weatherData: '',
+                            weatherCodeText: '',
+                            currentTime: 'adsf',
+                            weatherCode: {
+                                "0": "Unknown",
+                                "1000": "Clear, Sunny",
+                                "1100": "Mostly Clear",
+                                "1101": "Partly Cloudy",
+                                "1102": "Mostly Cloudy",
+                                "1001": "Cloudy",
+                                "2000": "Fog",
+                                "2100": "Light Fog",
+                                "4000": "Drizzle",
+                                "4001": "Rain",
+                                "4200": "Light Rain",
+                                "4201": "Heavy Rain",
+                                "5000": "Snow",
+                                "5001": "Flurries",
+                                "5100": "Light Snow",
+                                "5101": "Heavy Snow",
+                                "6000": "Freezing Drizzle",
+                                "6001": "Freezing Rain",
+                                "6200": "Light Freezing Rain",
+                                "6201": "Heavy Freezing Rain",
+                                "7000": "Ice Pellets",
+                                "7101": "Heavy Ice Pellets",
+                                "7102": "Light Ice Pellets",
+                                "8000": "Thunderstorm"
+                                },
+                            init: function(){
+                                this.ApiCall();
+                                this.showTime();
+                                setInterval(this.showTime.bind(this), 1000);
+                                // setInterval(this.ApiCall.bind(this), 50000);
+                            },
+                            ApiCall: function(){
+                                const options = {method: 'GET',headers: {accept: 'application/json'}};
+                                let fetchUrl = this.EndPointAPI + '?location=' + this.Location + '&apikey=' + this.APIkeys;
+
+                                fetch(fetchUrl,options)
+                                    .then(response => response.json())
+                                    .then(response => this.hydrateHTML(response))
+                                    .catch(error => console.error(error));
+                            },
+                            hydrateHTML: function(weatherData){
+                                console.log(weatherData);
+                                this.weatherData = weatherData;
+                                this.Temperature = weatherData.data.values.temperature;
+                                this.TemperatureFeelsLike = weatherData.data.values.temperatureApparent;
+                                this.weatherCodeText = this.weatherCode[weatherData.data.values.weatherCode];
+                                
+
+                            },
+
+                            showTime: function() {
+                                // Getting current time and date
+                                let time = new Date();
+                                let hour = time.getHours();
+                                let min = time.getMinutes();
+                                let sec = time.getSeconds();
+                                am_pm = "AM";
+                            
+                                // Setting time for 12 Hrs format
+                                if (hour >= 12) {
+                                    if (hour > 12) hour -= 12;
+                                    am_pm = "PM";
+                                } else if (hour == 0) {
+                                    hr = 12;
+                                    am_pm = "AM";
+                                }
+                            
+                                hour =
+                                    hour < 10 ? "0" + hour : hour;
+                                min = min < 10 ? "0" + min : min;
+                                sec = sec < 10 ? "0" + sec : sec;
+                            
+                                this.currentTime =
+                                    hour +
+                                    ":" +
+                                    min +
+                                    ":" +
+                                    sec +
+                                    am_pm;
+                            }
+                        }
+                    }
+                </script>
+
+        </div>
+    </body>
+</html>
